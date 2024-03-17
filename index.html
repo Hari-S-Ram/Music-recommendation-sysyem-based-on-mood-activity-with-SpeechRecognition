@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Speech Recognition App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
             /* Set background image */
-            background-image: url("https://source.unsplash.com/featured/?dragon");
+            background-image: url("https://source.unsplash.com/featured/?music");
             /* Adjust background properties */
             background-size: cover;
             background-repeat: no-repeat;
@@ -16,8 +17,13 @@
             margin: 0;
             padding: 20px;
         }
-        h1 {
+        h1, h2, h3, h4, h5, h6 {
             color: #ffffff; /* Change heading color to white for better visibility */
+            text-transform: uppercase; /* Convert text to uppercase */
+            font-weight: bold; /* Make text bold */
+            -webkit-text-fill-color: #ff5733; /* Text fill color */
+            -webkit-text-stroke-width: 1px; /* Stroke width */
+            -webkit-text-stroke-color: #000000; /* Stroke color */
         }
         form {
             background-color: rgba(255, 255, 255, 0.8); /* Add transparency to the form background */
@@ -26,47 +32,141 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             max-width: 500px;
             margin: auto;
+            position: relative; /* Relative positioning for child elements */
         }
         label {
             display: block;
             margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333333; /* Default label color */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add shadow effect */
         }
-        input[type="text"],
+        .input-with-microphone {
+            position: relative;
+            text-align: center; /* Center text */
+        }
+        .microphone-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        button.language, button.mood_activity, button.platform {
+            padding: 10px 20px; /* Adjust padding */
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 50px; /* Oval-shaped border radius */
+            cursor: pointer;
+            font-size: 16px;
+            color: black; /* Change text color to black */
+            font-weight: bold;
+            text-transform: uppercase;
+            outline: none; /* Remove outline */
+            background-color: transparent; /* Transparent background */
+        }
+        button.language {
+            color: black; /* Change text color to black */
+            background-color: #ffb6c1; /* Fill color for Language button */
+        }
+        button.mood_activity {
+            color: black; /* Change text color to black */
+            background-color: #ff6347; /* Fill color for Mood and Activity button */
+        }
+        button.platform {
+            color: black; /* Change text color to black */
+            background-color: #008000; /* Fill color for Platform button */
+        }
+        .press-here-button {
+            position: absolute;
+            bottom: 20px;
+            right: calc(50% + 110px); 
+            padding: 10px 20px;
+            background-color: #ffc107; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: black;
+            text-transform: uppercase;
+            outline: none;
+        }
         textarea {
-            width: 100%;
+            width: calc(100% - 40px); /* Adjust width to accommodate microphone icon */
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        button {
-            background-color: #4caf50;
-            color: white;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
+        button:hover, button:focus {
+            text-decoration: underline; /* Underline text on hover or focus */
         }
     </style>
 </head>
 <body>
     <h1>Speech Recognition App</h1>
     <form action="/" method="post">
-        <label for="language">Language:</label>
-        <input type="text" id="language" name="language" required><br>
+        <div class="input-with-microphone">
+            <button type="button" class="language" onclick="startSpeechRecognition('language')">Language</button>
+            <textarea id="language" name="language" rows="1" cols="50" required></textarea>
+        </div>
 
-        <label for="mood_activity">Mood and Activity:</label><br>
-        <textarea id="mood_activity" name="mood_activity" rows="4" cols="50" required></textarea><br>
+        <div class="input-with-microphone">
+            <button type="button" class="mood_activity" onclick="startSpeechRecognition('mood_activity')">Mood and Activity</button>
+            <textarea id="mood_activity" name="mood_activity" rows="4" cols="50" required></textarea>
+        </div>
 
-        <label for="platform">Platform:</label>
-        <input type="text" id="platform" name="platform" required><br>
+        <div class="input-with-microphone">
+            <button type="button" class="platform" onclick="startSpeechRecognition('platform')">Platform</button>
+            <textarea id="platform" name="platform" rows="1" cols="50" required></textarea>
+        </div>
 
-        <button type="submit">Search</button>
+        <button id="searchButton" type="submit">Search</button>
+
+     
+        <button class="press-here-button" onclick="scrollToSearch()">Press Here</button>
     </form>
+
+ 
+    <script>
+        function startSpeechRecognition(inputId) {
+            const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                let speechText = event.results[0][0].transcript;
+    
+                speechText = speechText.replace(/\.$/, '');
+                document.getElementById(inputId).value = speechText;
+            }
+
+            recognition.onend = function() {
+                updateSearchButtonIcon();
+            }
+        }
+
+        function updateSearchButtonIcon() {
+            const platformInput = document.getElementById('platform').value.toLowerCase();
+            const searchButton = document.getElementById('searchButton');
+
+            if (platformInput.includes('youtube')) {
+                searchButton.innerHTML = '<img src="https://th.bing.com/th?id=ODL.898c68cb7b3ddf55a1935e9c5649675d&w=100&h=100&c=12&pcl=faf9f7&o=6&dpr=1.4&pid=13.1" alt="YouTube">';
+            } else if (platformInput.includes('spotify')) {
+                searchButton.innerHTML = '<img src="https://th.bing.com/th?id=ODL.9fd228022740bbb6451f3aef7485acf6&w=100&h=100&c=12&pcl=faf9f7&o=6&dpr=1.4&pid=13.1" alt="Spotify">';
+            } else {
+                searchButton.innerHTML = 'Search';
+            }
+        }
+
+        function scrollToSearch() {
+ 
+            const searchButton = document.getElementById('searchButton');
+            searchButton.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+    </script>
 </body>
 </html>
